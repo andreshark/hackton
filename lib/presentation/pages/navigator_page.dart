@@ -1,13 +1,20 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_bloc.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_state.dart';
 import 'package:med_hackton/presentation/pages/add_medicine_page.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
+import 'package:med_hackton/presentation/pages/calendar_page.dart';
 import 'package:med_hackton/presentation/pages/home_page.dart';
 import 'package:med_hackton/presentation/pages/medicines_list_page.dart';
+import 'package:med_hackton/presentation/pages/medics_page.dart';
+import 'package:med_hackton/presentation/widgets/add_metric_sheet.dart';
+import 'package:med_hackton/presentation/widgets/add_metric_sheet_sugar.dart';
+import 'package:med_hackton/presentation/widgets/add_symp_sheet.dart';
+import '../../commons/notifications.dart';
 import '../widgets/dose_active_dialog.dart';
 
 class NavigatorPage extends StatefulWidget {
@@ -32,7 +39,7 @@ class _MyHomePageState extends State<NavigatorPage>
   @override
   void initState() {
     currentPage = 0;
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 4, vsync: this);
     tabController.animation!.addListener(
       () {
         final value = tabController.animation!.value.round();
@@ -41,7 +48,9 @@ class _MyHomePageState extends State<NavigatorPage>
         }
       },
     );
+
     super.initState();
+    LocalNotificationService.initialize();
   }
 
   void changePage(int newPage) {
@@ -68,9 +77,24 @@ class _MyHomePageState extends State<NavigatorPage>
         builder: (context, state) {
       LocalDataBloc localDataBloc = BlocProvider.of<LocalDataBloc>(context);
       return Scaffold(
-          appBar: AppBar(
-            title: Text('Главное меню'),
-          ),
+          appBar: currentPage == 0
+              ? null
+              : AppBar(
+                  backgroundColor: Colors.indigo,
+                  centerTitle: true,
+                  title: Text(
+                    currentPage == 1
+                        ? 'Календарь'
+                        : currentPage == 2
+                            ? 'Лекарства'
+                            : 'Врачи',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  flexibleSpace: const Image(
+                    image: AssetImage('assets/2.png'),
+                    fit: BoxFit.fill,
+                  ),
+                ),
           body: BottomBar(
               clip: Clip.none,
               fit: StackFit.expand,
@@ -97,7 +121,9 @@ class _MyHomePageState extends State<NavigatorPage>
                       physics: const BouncingScrollPhysics(),
                       children: [
                         HomePage(context, localDataBloc),
-                        const MedicinesPage()
+                        CalendarPage(context, localDataBloc),
+                        const MedicinesPage(),
+                        const DoctorsPage()
                       ]),
               child: Stack(
                 alignment: Alignment.center,
@@ -128,10 +154,30 @@ class _MyHomePageState extends State<NavigatorPage>
                         height: 55,
                         width: 40,
                         child: Center(
+                            child: Icon(
+                          Icons.calendar_month,
+                          color: currentPage == 1 ? colors[1] : unselectedColor,
+                        )),
+                      ),
+                      SizedBox(
+                        height: 55,
+                        width: 40,
+                        child: Center(
                           child: Icon(
-                            Icons.search,
+                            Icons.medication,
                             color:
-                                currentPage == 1 ? colors[1] : unselectedColor,
+                                currentPage == 2 ? colors[2] : unselectedColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 55,
+                        width: 40,
+                        child: Center(
+                          child: Icon(
+                            Icons.person_3,
+                            color:
+                                currentPage == 3 ? colors[3] : unselectedColor,
                           ),
                         ),
                       ),
@@ -150,24 +196,39 @@ class _MyHomePageState extends State<NavigatorPage>
                             //shape: const CircleBorder(eccentricity: 1),
                             child: Text('Добавить врача'),
 
-                            onTap: () {},
+                            onTap: () {
+                              BlocProvider.of<LocalDataBloc>(context)
+                                  .getSummary();
+                            },
                           ),
                           SpeedDialChild(
                             //shape: const CircleBorder(eccentricity: 1),
                             child: Text('Замерить вес'),
+
                             onTap: () {},
+                          ),
+                          SpeedDialChild(
+                            //shape: const CircleBorder(eccentricity: 1),
+                            child: Text('Замерить уровень сахара'),
+                            onTap: () {
+                              addMetricSugar(null, context);
+                            },
                           ),
                           SpeedDialChild(
                             //shape: const CircleBorder(eccentricity: 1),
                             child: Text('Замерить пульс'),
 
-                            onTap: () {},
+                            onTap: () {
+                              addMetric(null, context);
+                            },
                           ),
                           SpeedDialChild(
                             //shape: const CircleBorder(eccentricity: 1),
-                            child: Text('Добавить дозу'),
+                            child: Text('Добавить настроение и симптомы'),
 
-                            onTap: () {},
+                            onTap: () {
+                              addEmotion(context);
+                            },
                           ),
                         ]),
                   )

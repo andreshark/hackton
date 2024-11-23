@@ -3,20 +3,22 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:med_hackton/data/model/pulse.dart';
+import 'package:med_hackton/data/model/sugar.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_bloc.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_state.dart';
+import 'package:med_hackton/presentation/widgets/add_metric_sheet_sugar.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 
 import '../widgets/add_metric_sheet.dart';
 
-class MetricPage extends StatefulWidget {
-  const MetricPage({super.key});
+class MetricSugarPage extends StatefulWidget {
+  const MetricSugarPage({super.key});
   @override
-  State<MetricPage> createState() => _AuthPageState();
+  State<MetricSugarPage> createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<MetricPage> {
+class _AuthPageState extends State<MetricSugarPage> {
   final _formKey = GlobalKey<FormState>();
   late TooltipBehavior _tooltipBehavior;
 
@@ -31,7 +33,7 @@ class _AuthPageState extends State<MetricPage> {
               child: Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
-                    '${DateFormat('M/d H:m').format((data as Pulse).date)}\nПульс: ${(data as Pulse).pulsecount.toString()}',
+                    '${DateFormat('M/d H:m').format((data as Sugar).date)}\nСахар: ${(data as Sugar).sugarcount.toString()}',
                     style: TextStyle(color: Colors.white),
                   )));
         });
@@ -51,7 +53,7 @@ class _AuthPageState extends State<MetricPage> {
     Intl.defaultLocale = 'ru_RU';
     return BlocBuilder<LocalDataBloc, LocalDataState>(
         builder: (context, state) {
-      final List<Pulse> sortedPulse = List.from(state.pulses!)
+      final List<Sugar> sortedPulse = List.from(state.sugars!)
         ..sort((a, b) {
           if (a.date.compareTo(b.date) == 1) {
             return -1;
@@ -60,26 +62,26 @@ class _AuthPageState extends State<MetricPage> {
           }
           return 0;
         });
-      final minPulse = state.pulses!.isEmpty
+      final minPulse = state.sugars!.isEmpty
           ? null
-          : minBy(state.pulses!.where((x) => x.date.day == DateTime.now().day),
-                  (e) => e.pulsecount)!
-              .pulsecount;
-      final maxPulse = state.pulses!.isEmpty
+          : minBy(state.sugars!.where((x) => x.date.day == DateTime.now().day),
+                  (e) => e.sugarcount)!
+              .sugarcount;
+      final maxPulse = state.sugars!.isEmpty
           ? null
-          : maxBy(state.pulses!.where((x) => x.date.day == DateTime.now().day),
-                  (e) => e.pulsecount)!
-              .pulsecount;
+          : maxBy(state.sugars!.where((x) => x.date.day == DateTime.now().day),
+                  (e) => e.sugarcount)!
+              .sugarcount;
 
       return Scaffold(
           appBar: AppBar(
-            title: Text('Пульс'),
+            title: Text('Уровень сахара в крови'),
             actions: [
               Padding(
                   padding: EdgeInsets.all(10),
                   child: TextButton.icon(
                     onPressed: () {
-                      addMetric(null, context);
+                      addMetricSugar(null, context);
                     },
                     label: Text('Добавить'),
                     icon: Icon(Icons.add),
@@ -92,7 +94,7 @@ class _AuthPageState extends State<MetricPage> {
                     SizedBox(
                       height: 15,
                     ),
-                    state.pulses!.isEmpty
+                    state.sugars!.isEmpty
                         ? SizedBox.shrink()
                         : Container(
                             color: Colors.white,
@@ -106,7 +108,7 @@ class _AuthPageState extends State<MetricPage> {
                                           child: Padding(
                                               padding: EdgeInsets.all(10),
                                               child: Text(
-                                                'Диапазон\n $minPulse-$maxPulse уд/мин\n${DateFormat.MMMd().format(DateTime.now())}',
+                                                'Диапазон\n $minPulse-$maxPulse ммоль/л\n${DateFormat.MMMd().format(DateTime.now())}',
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ))),
@@ -127,23 +129,23 @@ class _AuthPageState extends State<MetricPage> {
                                 ),
                                 series: <CartesianSeries>[
                                   // Renders line chart
-                                  LineSeries<Pulse, DateTime>(
+                                  LineSeries<Sugar, DateTime>(
                                       enableTooltip: true,
                                       dataSource:
                                           BlocProvider.of<LocalDataBloc>(
                                                   context)
-                                              .pulses,
-                                      xValueMapper: (Pulse pulse, _) =>
+                                              .sugars,
+                                      xValueMapper: (Sugar pulse, _) =>
                                           pulse.date,
-                                      yValueMapper: (Pulse pulse, _) =>
-                                          pulse.pulsecount)
+                                      yValueMapper: (Sugar pulse, _) =>
+                                          pulse.sugarcount)
                                 ])),
                     SizedBox(
                       height: 5,
                     ),
                   ] +
                   List.generate(
-                    state.pulses!.length,
+                    state.sugars!.length,
                     (index) => Container(
                         margin: EdgeInsets.all(10),
                         padding: EdgeInsets.all(5),
@@ -153,12 +155,13 @@ class _AuthPageState extends State<MetricPage> {
                                 BorderRadius.all(Radius.circular(20))),
                         child: ListTile(
                           title: Text(
-                              'Пульс: ${sortedPulse[index].pulsecount} уд/мин'),
+                              'Уровень сахара в крови: ${sortedPulse[index].sugarcount} ммоль/л'),
                           subtitle: Text(
                             '${DateFormat('y MMM d г. ${sortedPulse[index].date.hour.toString().length == 1 ? '0' : ''}H:${sortedPulse[index].date.minute.toString().length == 1 ? '0' : ''}m').format(sortedPulse[index].date)} ',
                           ),
                           trailing: Icon(Icons.edit_note),
-                          onTap: () => addMetric(sortedPulse[index], context),
+                          onTap: () =>
+                              addMetricSugar(sortedPulse[index], context),
                         )),
                   ),
             ),

@@ -29,6 +29,31 @@ class Medicine extends Equatable {
       this.startTreatment,
       this.endTreatment});
 
+  Medicine copyWith(int remains) {
+    return Medicine(
+      name: name,
+      remains: remains,
+      unit: unit,
+      doses: doses,
+      comment: comment,
+      startTreatment: startTreatment,
+      endTreatment: endTreatment,
+      contraindications: contraindications,
+      indications: indications,
+      directionsForUse: directionsForUse,
+      remainsNotificate: remainsNotificate,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'contraindications': contraindications,
+      'indications': indications,
+      'interaction ': directionsForUse,
+    };
+  }
+
   @override
   // TODO: implement props
   List<Object?> get props => [name, remains, unit, doses, comment];

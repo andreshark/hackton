@@ -1,22 +1,20 @@
-import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:med_hackton/data/model/pulse.dart';
+import 'package:med_hackton/data/model/sugar.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_bloc.dart';
 import 'package:intl/intl.dart';
 
-Future<void> addMetric(Pulse? pulse, BuildContext context) {
+Future<void> addMetricSugar(Sugar? sugar, BuildContext context) {
   final _controller = TextEditingController();
   final _controller1 = TextEditingController();
   final controller1 = TextEditingController();
-  if (pulse != null) {
-    _controller.text = DateFormat('d MMMM yyyy').format(pulse.date);
+  if (sugar != null) {
+    _controller.text = DateFormat('d MMMM yyyy').format(sugar.date);
     _controller1.text =
-        '${pulse.date.hour.toString().length == 1 ? '0${pulse.date.hour}' : pulse.date.hour}:${pulse.date.minute.toString().length == 1 ? '0${pulse.date.minute}' : pulse.date.minute}';
-    controller1.text = '${pulse.pulsecount}';
+        '${sugar.date.hour.toString().length == 1 ? '0${sugar.date.hour}' : sugar.date.hour}:${sugar.date.minute.toString().length == 1 ? '0${sugar.date.minute}' : sugar.date.minute}';
+    controller1.text = '${sugar.sugarcount}';
   }
   return showModalBottomSheet(
       useSafeArea: true,
@@ -35,16 +33,16 @@ Future<void> addMetric(Pulse? pulse, BuildContext context) {
                       child: Text('Отменить')),
                   Spacer(),
                   Text(
-                    'Пульс',
+                    'Уровень сахара в крови',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Spacer(),
                   TextButton(
                       onPressed: () {
-                        if (pulse == null) {
-                          BlocProvider.of<LocalDataBloc>(context).addPulse(
-                              Pulse(
-                                  pulsecount: int.parse(controller1.text),
+                        if (sugar == null) {
+                          BlocProvider.of<LocalDataBloc>(context).addSugar(
+                              Sugar(
+                                  sugarcount: int.parse(controller1.text),
                                   date: DateFormat("d MMMM yyyy", "ru_RU")
                                       .parse(_controller.text
                                           .replaceFirst('г.', ''))
@@ -54,10 +52,10 @@ Future<void> addMetric(Pulse? pulse, BuildContext context) {
                                           minutes: int.parse(_controller1.text
                                               .substring(3, 5))))));
                         } else {
-                          final List<Pulse> list = List.from(
-                              BlocProvider.of<LocalDataBloc>(context).pulses);
-                          list[list.indexOf(pulse)] = Pulse(
-                              pulsecount: int.parse(controller1.text),
+                          final List<Sugar> list = List.from(
+                              BlocProvider.of<LocalDataBloc>(context).sugars);
+                          list[list.indexOf(sugar)] = Sugar(
+                              sugarcount: int.parse(controller1.text),
                               date: DateFormat("d MMMM yyyy", "ru_RU")
                                   .parse(
                                       _controller.text.replaceFirst('г.', ''))
@@ -66,12 +64,12 @@ Future<void> addMetric(Pulse? pulse, BuildContext context) {
                                           _controller1.text.substring(0, 2)),
                                       minutes: int.parse(
                                           _controller1.text.substring(3, 5)))));
-                          BlocProvider.of<LocalDataBloc>(context).pulses = list;
+                          BlocProvider.of<LocalDataBloc>(context).sugars = list;
                         }
                         Navigator.pop(context);
                       },
                       child:
-                          pulse == null ? Text('Добавить') : Text('Сохранить')),
+                          sugar == null ? Text('Добавить') : Text('Сохранить')),
                 ],
               ),
               SizedBox(
@@ -120,7 +118,7 @@ Future<void> addMetric(Pulse? pulse, BuildContext context) {
                         decoration: InputDecoration(
                             prefixIcon: Padding(
                                 padding: EdgeInsets.all(15),
-                                child: Text('УД/МИН'))),
+                                child: Text('ммоль/л'))),
                       ),
                     ],
                   ),

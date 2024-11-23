@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_splash/flutter_animated_splash.dart' as splash;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_bloc.dart';
 import 'package:med_hackton/presentation/bloc/medicine/medicine_bloc.dart';
 import 'package:med_hackton/presentation/bloc/medicine/medicine_state.dart';
+import 'package:med_hackton/presentation/pages/navigator_page.dart';
 import 'package:numberpicker/numberpicker.dart';
 import '../../commons/constants.dart';
 import '../../data/model/dose.dart';
 import 'package:intl/intl.dart';
 
+import '../../data/model/medicine.dart';
+
 class AddMedicinePage extends StatefulWidget {
-  const AddMedicinePage({super.key});
+  const AddMedicinePage({super.key, this.medicine});
   @override
   State<AddMedicinePage> createState() => _AuthPageState();
+  final Medicine? medicine;
 }
 
 class _AuthPageState extends State<AddMedicinePage> {
@@ -19,15 +24,24 @@ class _AuthPageState extends State<AddMedicinePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (BuildContext context) =>
-            MedicineBloc(BlocProvider.of<LocalDataBloc>(context)),
+        create: (BuildContext context) => MedicineBloc(
+            BlocProvider.of<LocalDataBloc>(context), widget.medicine),
         child: BlocBuilder<MedicineBloc, MedicineState>(
           builder: (context, state) {
             MedicineBloc medicineBloc = BlocProvider.of<MedicineBloc>(context);
 
             return Scaffold(
                 appBar: AppBar(
-                  title: Text('Добавление лекарства'),
+                  backgroundColor: Colors.indigo,
+                  centerTitle: true,
+                  flexibleSpace: const Image(
+                    image: AssetImage('assets/2.png'),
+                    fit: BoxFit.fill,
+                  ),
+                  title: Text(
+                    'Добавление лекарства',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
                 body: Form(
                     key: _formKey,
@@ -35,7 +49,10 @@ class _AuthPageState extends State<AddMedicinePage> {
                         padding: EdgeInsets.all(15),
                         child: ListView(children: [
                           Container(
-                              color: Colors.white,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
                               child: Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Column(
@@ -46,6 +63,7 @@ class _AuthPageState extends State<AddMedicinePage> {
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                     TextFormField(
+                                      initialValue: medicineBloc.name,
                                       decoration: InputDecoration(
                                           hintText:
                                               'Введите название лекарства'),
@@ -68,6 +86,7 @@ class _AuthPageState extends State<AddMedicinePage> {
                                     ),
                                     TextFormField(
                                       maxLines: null,
+                                      initialValue: medicineBloc.comment,
                                       decoration: InputDecoration(
                                           hintText: 'Введите комментарий'),
                                       onChanged: (value) {
@@ -100,7 +119,10 @@ class _AuthPageState extends State<AddMedicinePage> {
                             height: 15,
                           ),
                           Container(
-                              color: Colors.white,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
                               child: Padding(
                                 padding: EdgeInsets.all(10),
                                 child: Column(
@@ -251,7 +273,10 @@ class _AuthPageState extends State<AddMedicinePage> {
                             height: 15,
                           ),
                           Container(
-                            color: Colors.white,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -346,7 +371,10 @@ class _AuthPageState extends State<AddMedicinePage> {
                             height: 15,
                           ),
                           Container(
-                            color: Colors.white,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -382,6 +410,8 @@ class _AuthPageState extends State<AddMedicinePage> {
                                                   TextStyle(color: Colors.grey),
                                             ),
                                             TextFormField(
+                                              initialValue: medicineBloc.remains
+                                                  .toString(),
                                               keyboardType:
                                                   TextInputType.number,
                                               decoration: InputDecoration(
@@ -401,6 +431,9 @@ class _AuthPageState extends State<AddMedicinePage> {
                                                   TextStyle(color: Colors.grey),
                                             ),
                                             TextFormField(
+                                              initialValue: medicineBloc
+                                                  .remainsNotificate
+                                                  .toString(),
                                               keyboardType:
                                                   TextInputType.number,
                                               decoration: InputDecoration(
@@ -433,17 +466,41 @@ class _AuthPageState extends State<AddMedicinePage> {
                             height: 30,
                           ),
                           FilledButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 final FormState? form = _formKey.currentState;
                                 if (form!.validate() &&
                                     medicineBloc.doses != null &&
                                     medicineBloc.doses!.isNotEmpty) {
-                                  medicineBloc.saveMedicine();
+                                  if (await medicineBloc
+                                      .saveMedicine(widget.medicine)) {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute<Null>(
+                                            builder: (BuildContext context) =>
+                                                splash.AnimatedSplash(
+                                                    type: splash
+                                                        .Transition.topToBottom,
+                                                    child: Stack(
+                                                      children: [
+                                                        Image.asset(
+                                                          'assets/12.gif',
+                                                          fit: BoxFit.fill,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    curve: Curves.easeInExpo,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    navigator:
+                                                        const NavigatorPage(),
+                                                    durationInSeconds: 1)));
+                                  }
                                 } else {
                                   medicineBloc.checkDoses = true;
                                 }
                               },
-                              child: Text('Готово'))
+                              child: medicineBloc.state.finish!
+                                  ? CircularProgressIndicator.adaptive()
+                                  : Text('Готово'))
                         ]))));
           },
         ));

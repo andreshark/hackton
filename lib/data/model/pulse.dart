@@ -6,6 +6,13 @@ class Pulse extends Equatable {
 
   const Pulse({required this.pulsecount, required this.date});
 
+  Map<String, dynamic> toJson() {
+    return {
+      'pulsecount': pulsecount,
+      'date': date,
+    };
+  }
+
   @override
   // TODO: implement props
   List<Object?> get props => [pulsecount, date];

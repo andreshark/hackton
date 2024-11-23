@@ -16,6 +16,7 @@ class MedicineState extends Equatable {
   final bool checkDoses;
   final String? unit; // tip priema
   final List<Dose>? doses;
+  final bool? finish;
   const MedicineState(
       {this.startTreatment,
       this.endTreatment,
@@ -27,7 +28,8 @@ class MedicineState extends Equatable {
       this.remainsNotificate,
       this.remainsOn = false,
       this.treatmentOn = false,
-      this.checkDoses = false});
+      this.checkDoses = false,
+      this.finish});
 
   @override
   List<Object?> get props => [
@@ -41,7 +43,8 @@ class MedicineState extends Equatable {
         remainsOn,
         treatmentOn,
         remainsNotificate,
-        checkDoses
+        checkDoses,
+        finish
       ];
 
   MedicineState copyWith(
@@ -55,13 +58,15 @@ class MedicineState extends Equatable {
       List<Dose>? doses,
       bool? treatmentOn,
       bool? remainsOn,
-      bool? checkDoses}) {
+      bool? checkDoses,
+      bool? finish}) {
     return MedicineState(
       remains: remains ?? this.remains,
       remainsNotificate: remainsNotificate ?? this.remainsNotificate,
       name: name ?? this.name,
       checkDoses: checkDoses ?? this.checkDoses,
       comment: comment ?? this.comment,
+      finish: finish ?? this.finish,
       unit: unit ?? this.unit,
       doses: doses ?? this.doses,
       startTreatment: startTreatment ?? this.startTreatment,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:med_hackton/data/model/dose_active.dart';
 import 'package:med_hackton/presentation/bloc/local_data/local_data_bloc.dart';
 
-showDoseActiveDialog(
+showDoseActiveDialog1(
     BuildContext context, LocalDataBloc localDataBloc, int index) {
   showDialog<int>(
       context: context,
@@ -28,7 +28,7 @@ showDoseActiveDialog(
                             children: [
                               Text(
                                 localDataBloc
-                                    .lastActiveDoses[index].medicine.name,
+                                    .allActiveDoses[index].medicine.name,
                                 style: TextStyle(
                                     fontWeight: FontWeight.w500, fontSize: 20),
                               ),
@@ -36,12 +36,12 @@ showDoseActiveDialog(
                                 height: 30,
                               ),
                               Text(
-                                  'Нужно использовать в ${localDataBloc.lastActiveDoses[index].dose.hour < 10 ? '0${localDataBloc.lastActiveDoses[index].dose.hour}' : localDataBloc.lastActiveDoses[index].dose.hour}:${localDataBloc.lastActiveDoses[index].dose.minute < 10 ? '0${localDataBloc.lastActiveDoses[index].dose.minute}' : localDataBloc.lastActiveDoses[index].dose.minute}'),
+                                  'Нужно использовать в ${localDataBloc.allActiveDoses[index].dose.hour < 10 ? '0${localDataBloc.allActiveDoses[index].dose.hour}' : localDataBloc.allActiveDoses[index].dose.hour}:${localDataBloc.allActiveDoses[index].dose.minute < 10 ? '0${localDataBloc.allActiveDoses[index].dose.minute}' : localDataBloc.allActiveDoses[index].dose.minute}'),
                               SizedBox(
                                 height: 10,
                               ),
                               Text(
-                                  'Дозировка: ${localDataBloc.lastActiveDoses[index].dose.dosage} ${localDataBloc.lastActiveDoses[index].medicine.unit}'),
+                                  'Дозировка: ${localDataBloc.allActiveDoses[index].dose.dosage} ${localDataBloc.allActiveDoses[index].medicine.unit}'),
                               SizedBox(
                                 height: 30,
                               ),
@@ -55,7 +55,7 @@ showDoseActiveDialog(
                                           onPressed: () {
                                             localDataBloc.updateDoseState(
                                                 localDataBloc
-                                                    .lastActiveDoses[index],
+                                                    .allActiveDoses[index],
                                                 DoseState.missed);
                                             Navigator.pop(context);
                                           },
@@ -71,7 +71,7 @@ showDoseActiveDialog(
                                         onPressed: () {
                                           localDataBloc.updateDoseState(
                                               localDataBloc
-                                                  .lastActiveDoses[index],
+                                                  .allActiveDoses[index],
                                               DoseState.waiting);
                                           Navigator.pop(context);
                                         },
@@ -87,7 +87,7 @@ showDoseActiveDialog(
                                           onPressed: () {
                                             localDataBloc.updateDoseState(
                                                 localDataBloc
-                                                    .lastActiveDoses[index],
+                                                    .allActiveDoses[index],
                                                 DoseState.accepted);
                                             Navigator.pop(context);
                                           },

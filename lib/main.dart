@@ -1,10 +1,29 @@
+import 'dart:io';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:med_hackton/commons/notifications.dart';
 import 'presentation/bloc/local_data/local_data_bloc.dart';
 import 'presentation/pages/navigator_page.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 
-void main() {
+void main() async {
+  // LocalNotificationService.initialize();
+  WidgetsFlutterBinding.ensureInitialized();
+  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  //     FlutterLocalNotificationsPlugin()
+  //       ..initialize(const InitializationSettings(
+  //           android: AndroidInitializationSettings('app_icon')));
+  // // flutterLocalNotificationsPlugin
+  // //     .resolvePlatformSpecificImplementation<
+  // //         AndroidFlutterLocalNotificationsPlugin>()!
+  // //     .requestNotificationsPermission();
+  await _configureLocalTimeZone();
   initializeDateFormatting('ru_Ru', null)
       .then((_) => runApp(MultiBlocProvider(providers: [
             BlocProvider<LocalDataBloc>(
@@ -65,4 +84,16 @@ class MainApp extends StatelessWidget {
             ),
         home: const NavigatorPage());
   }
+}
+
+Future<void> _configureLocalTimeZone() async {
+  if (kIsWeb || Platform.isLinux) {
+    return;
+  }
+  tz.initializeTimeZones();
+  if (Platform.isWindows) {
+    return;
+  }
+  final String? timeZoneName = await FlutterTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZoneName!));
 }
