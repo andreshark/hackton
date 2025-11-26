@@ -126,7 +126,7 @@ class LocalDataBloc extends Cubit<LocalDataState> {
     };
     debugPrint(h.toString());
     return http.post(
-      Uri.parse('http://192.168.1.103:5000/indicators'),
+      Uri.parse('http:/localhost:5000/indicators'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

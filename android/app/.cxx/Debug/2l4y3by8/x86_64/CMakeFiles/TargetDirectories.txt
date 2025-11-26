@@ -1,0 +1,2 @@
+E:/projects/med_hackton/android/app/.cxx/Debug/2l4y3by8/x86_64/CMakeFiles/edit_cache.dir
+E:/projects/med_hackton/android/app/.cxx/Debug/2l4y3by8/x86_64/CMakeFiles/rebuild_cache.dir

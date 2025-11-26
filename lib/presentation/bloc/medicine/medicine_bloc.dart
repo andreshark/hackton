@@ -58,7 +58,7 @@ class MedicineBloc extends Cubit<MedicineState> {
 
   Future<http.Response> getMedicineData(String name) {
     return http.post(
-      Uri.parse('http://192.168.1.103:5000/parse-drug'),
+      Uri.parse('http://192.168.1.102:5000/parse-drug'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
